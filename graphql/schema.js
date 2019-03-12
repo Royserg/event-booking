@@ -1,4 +1,5 @@
 const graphql = require('graphql');
+const Event = require('../models/event');
 
 const {
   GraphQLObjectType,
@@ -43,7 +44,8 @@ const RootQuery = new GraphQLObjectType({
     events: {
       type: new GraphQLList(EventType),
       resolve(parent, args) {
-        return events;
+        // TODO:
+        return Event.find({});
       }
     }
   }
@@ -62,16 +64,23 @@ const Mutation = new GraphQLObjectType({
         date: { type: new GraphQLNonNull(GraphQLString) }
       },
       resolve(parent, args) {
-        let event = {
-          _id: events.length + 1,
+        const event = new Event({
           title: args.title,
           description: args.description,
           price: args.price,
-          date: args.date
-        };
+          date: new Date(args.date)
+        });
 
-        events.push(event);
-        return event;
+        return event
+          .save()
+          .then(result => {
+            console.log(result);
+            return { ...result._doc };
+          })
+          .catch(err => {
+            console.log(err);
+            throw err;
+          });
       }
     }
   }
@@ -98,26 +107,26 @@ const users = [
   }
 ];
 
-const events = [
-  {
-    _id: 1,
-    title: 'Event 1',
-    description: 'Programming',
-    price: 200.0,
-    date: 19 - 09 - 2018
-  },
-  {
-    _id: 2,
-    title: 'Event 2',
-    description: 'Conference',
-    price: 571.0,
-    date: 21 - 11 - 2019
-  },
-  {
-    _id: 3,
-    title: 'Event 3',
-    description: 'Online Gaming',
-    price: 10.0,
-    date: 03 - 03 - 2019
-  }
-];
+// const events = [
+//   {
+//     _id: 1,
+//     title: 'Event 1',
+//     description: 'Programming',
+//     price: 200.0,
+//     date: 19 - 09 - 2018
+//   },
+//   {
+//     _id: 2,
+//     title: 'Event 2',
+//     description: 'Conference',
+//     price: 571.0,
+//     date: 21 - 11 - 2019
+//   },
+//   {
+//     _id: 3,
+//     title: 'Event 3',
+//     description: 'Online Gaming',
+//     price: 10.0,
+//     date: 03 - 03 - 2019
+//   }
+// ];
