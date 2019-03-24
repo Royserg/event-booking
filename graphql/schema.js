@@ -1,5 +1,8 @@
 const graphql = require('graphql');
+const bcrypt = require('bcryptjs');
+
 const Event = require('../models/event');
+const User = require('../models/user');
 
 const {
   GraphQLObjectType,
@@ -15,8 +18,9 @@ const {
 const UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
-    id: { type: GraphQLID },
-    name: { type: GraphQLString }
+    _id: { type: GraphQLID },
+    email: { type: GraphQLString },
+    password: { type: GraphQLString }
   })
 });
 
@@ -38,13 +42,12 @@ const RootQuery = new GraphQLObjectType({
     users: {
       type: new GraphQLList(UserType),
       resolve(parent, args) {
-        return users;
+        return User.find({});
       }
     },
     events: {
       type: new GraphQLList(EventType),
       resolve(parent, args) {
-        // TODO:
         return Event.find({});
       }
     }
@@ -79,6 +82,30 @@ const Mutation = new GraphQLObjectType({
           })
           .catch(err => {
             console.log(err);
+            throw err;
+          });
+      }
+    },
+    createUser: {
+      type: UserType,
+      args: {
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        return bcrypt
+          .hash(args.password, 12)
+          .then(hashedPassword => {
+            const user = new User({
+              email: args.email,
+              password: hashedPassword
+            });
+            return user.save();
+          })
+          .then(result => {
+            return { ...result._doc, _id: result.id, password: null };
+          })
+          .catch(err => {
             throw err;
           });
       }
