@@ -25,7 +25,8 @@ mongoose
   .connect(
     `mongodb+srv://${process.env.MONGO_USER}:${
       process.env.MONGO_PASSWORD
-    }@cluster0-eqdjg.mongodb.net/${process.env.MONGO_DB}?retryWrites=true`
+    }@cluster0-eqdjg.mongodb.net/${process.env.MONGO_DB}?retryWrites=true`,
+    { useNewUrlParser: true }
   )
   .then(() => {
     // start server after connection to db was successfull
