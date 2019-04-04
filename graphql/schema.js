@@ -20,7 +20,13 @@ const UserType = new GraphQLObjectType({
   fields: () => ({
     _id: { type: GraphQLID },
     email: { type: GraphQLString },
-    password: { type: GraphQLString }
+    password: { type: GraphQLString },
+    createdEvents: {
+      type: new GraphQLList(EventType),
+      resolve(parent, args) {
+        return Event.find({ creatorId: parent._id });
+      }
+    }
   })
 });
 
@@ -31,7 +37,13 @@ const EventType = new GraphQLObjectType({
     title: { type: new GraphQLNonNull(GraphQLString) },
     description: { type: new GraphQLNonNull(GraphQLString) },
     price: { type: GraphQLFloat },
-    date: { type: GraphQLString }
+    date: { type: GraphQLString },
+    creator: {
+      type: UserType,
+      resolve(parent, args) {
+        return User.findById(parent.creatorId);
+      }
+    }
   })
 });
 
@@ -47,8 +59,18 @@ const RootQuery = new GraphQLObjectType({
     },
     events: {
       type: new GraphQLList(EventType),
-      resolve(parent, args) {
-        return Event.find({});
+      async resolve(parent, args) {
+        try {
+          const events = await Event.find({});
+          return events.map(event => {
+            return {
+              ...event._doc,
+              date: new Date(event._doc.date).toISOString()
+            };
+          });
+        } catch (err) {
+          throw err;
+        }
       }
     }
   }
@@ -65,25 +87,37 @@ const Mutation = new GraphQLObjectType({
         description: { type: new GraphQLNonNull(GraphQLString) },
         price: { type: new GraphQLNonNull(GraphQLFloat) },
         date: { type: new GraphQLNonNull(GraphQLString) }
+        // creator: { type: new GraphQLNonNull(GraphQLID) }
       },
-      resolve(parent, args) {
+      async resolve(parent, args) {
         const event = new Event({
           title: args.title,
           description: args.description,
           price: args.price,
-          date: new Date(args.date)
+          date: new Date(args.date),
+          creatorId: '5c884b9189805707508b76b2'
         });
+        // holds info about the event
+        let createdEvent;
+        try {
+          // save new event to db
+          const result = await event.save();
+          createdEvent = { ...result._doc };
+          // hard coded user => add event to his array
+          const user = await User.findById('5c884b9189805707508b76b2');
 
-        return event
-          .save()
-          .then(result => {
-            console.log(result);
-            return { ...result._doc };
-          })
-          .catch(err => {
-            console.log(err);
-            throw err;
-          });
+          if (!user) {
+            throw new Error('User not found');
+          }
+          // save event to user array of events
+          user.createdEvents.push(event);
+          // update user info in db (added new event)
+          await user.save();
+
+          return createdEvent;
+        } catch (err) {
+          throw err;
+        }
       }
     },
     createUser: {
@@ -92,22 +126,25 @@ const Mutation = new GraphQLObjectType({
         email: { type: new GraphQLNonNull(GraphQLString) },
         password: { type: new GraphQLNonNull(GraphQLString) }
       },
-      resolve(parent, args) {
-        return bcrypt
-          .hash(args.password, 12)
-          .then(hashedPassword => {
-            const user = new User({
-              email: args.email,
-              password: hashedPassword
-            });
-            return user.save();
-          })
-          .then(result => {
-            return { ...result._doc, _id: result.id, password: null };
-          })
-          .catch(err => {
-            throw err;
+      async resolve(parent, args) {
+        try {
+          const existingUser = await User.findOne({ email: args.email });
+
+          if (existingUser) {
+            throw new Error('User already exists!');
+          }
+          // hash password and create new user
+          const hashedPassword = await bcrypt.hash(args.password, 12);
+          const user = new User({
+            email: args.email,
+            password: hashedPassword
           });
+
+          const result = await user.save();
+          return { ...result._doc, _id: result.id, password: null };
+        } catch (err) {
+          throw err;
+        }
       }
     }
   }
@@ -117,43 +154,3 @@ module.exports = new GraphQLSchema({
   query: RootQuery,
   mutation: Mutation
 });
-
-/* dummy data */
-const users = [
-  {
-    id: 1,
-    name: 'Jake Jon'
-  },
-  {
-    id: 2,
-    name: 'Mike Mo'
-  },
-  {
-    id: 3,
-    name: 'Lerns Lorn'
-  }
-];
-
-// const events = [
-//   {
-//     _id: 1,
-//     title: 'Event 1',
-//     description: 'Programming',
-//     price: 200.0,
-//     date: 19 - 09 - 2018
-//   },
-//   {
-//     _id: 2,
-//     title: 'Event 2',
-//     description: 'Conference',
-//     price: 571.0,
-//     date: 21 - 11 - 2019
-//   },
-//   {
-//     _id: 3,
-//     title: 'Event 3',
-//     description: 'Online Gaming',
-//     price: 10.0,
-//     date: 03 - 03 - 2019
-//   }
-// ];
