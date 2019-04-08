@@ -111,21 +111,6 @@ const RootQuery = new GraphQLObjectType({
           throw err;
         }
       }
-      // resolve(parent, args) {
-      //   return Booking.find({})
-      //     .then(bookings => {
-      //       return bookings.map(booking => {
-      //         return {
-      //           ...booking._doc,
-      //           createdAt: new Date(booking._doc.createdAt).toISOString(),
-      //           updatedAt: new Date(booking._doc.updatedAt).toISOString()
-      //         };
-      //       });
-      //     })
-      //     .catch(err => {
-      //       console.log(err);
-      //     });
-      // }
     }
   }
 });
@@ -229,7 +214,20 @@ const Mutation = new GraphQLObjectType({
       args: {
         bookingId: { type: new GraphQLNonNull(GraphQLID) }
       },
-      resolve(parent, args) {}
+      async resolve(parent, args) {
+        try {
+          // find whole booking object
+          const booking = await Booking.findById(args.bookingId);
+          // get Event object
+          const event = await Event.findById(booking.event);
+          // delete booking
+          await booking.remove();
+          // send back information about the canelled event
+          return event;
+        } catch (err) {
+          throw err;
+        }
+      }
     }
   }
 });
