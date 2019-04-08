@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const Event = require('../models/event');
 const User = require('../models/user');
+const Booking = require('../models/booking');
 
 const {
   GraphQLObjectType,
@@ -15,6 +16,27 @@ const {
 } = graphql;
 
 /* Types */
+const BookingType = new GraphQLObjectType({
+  name: 'Booking',
+  fields: () => ({
+    _id: { type: GraphQLID },
+    event: {
+      type: EventType,
+      resolve(parent, args) {
+        return Event.findById(parent.event);
+      }
+    },
+    user: {
+      type: UserType,
+      resolve(parent, args) {
+        return User.findById(parent.user);
+      }
+    },
+    createdAt: { type: GraphQLString },
+    updatedAt: { type: GraphQLString }
+  })
+});
+
 const UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
@@ -72,6 +94,38 @@ const RootQuery = new GraphQLObjectType({
           throw err;
         }
       }
+    },
+    bookings: {
+      type: new GraphQLList(BookingType),
+      async resolve(parent, args) {
+        try {
+          const bookings = await Booking.find({});
+          return bookings.map(booking => {
+            return {
+              ...booking._doc,
+              createdAt: new Date(booking._doc.createdAt).toISOString(),
+              updatedAt: new Date(booking._doc.updatedAt).toISOString()
+            };
+          });
+        } catch (err) {
+          throw err;
+        }
+      }
+      // resolve(parent, args) {
+      //   return Booking.find({})
+      //     .then(bookings => {
+      //       return bookings.map(booking => {
+      //         return {
+      //           ...booking._doc,
+      //           createdAt: new Date(booking._doc.createdAt).toISOString(),
+      //           updatedAt: new Date(booking._doc.updatedAt).toISOString()
+      //         };
+      //       });
+      //     })
+      //     .catch(err => {
+      //       console.log(err);
+      //     });
+      // }
     }
   }
 });
@@ -146,6 +200,36 @@ const Mutation = new GraphQLObjectType({
           throw err;
         }
       }
+    },
+    bookEvent: {
+      type: BookingType,
+      args: {
+        eventId: { type: new GraphQLNonNull(GraphQLID) }
+      },
+      async resolve(parent, args) {
+        try {
+          const booking = new Booking({
+            user: '5c884b9189805707508b76b2',
+            event: args.eventId
+          });
+
+          const result = await booking.save();
+          return {
+            ...result._doc,
+            createdAt: new Date(result._doc.createdAt).toISOString(),
+            updatedAt: new Date(result._doc.updatedAt).toISOString()
+          };
+        } catch (err) {
+          throw err;
+        }
+      }
+    },
+    cancelBooking: {
+      type: EventType,
+      args: {
+        bookingId: { type: new GraphQLNonNull(GraphQLID) }
+      },
+      resolve(parent, args) {}
     }
   }
 });
