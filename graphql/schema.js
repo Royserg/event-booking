@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { gql, makeExecutableSchema } = require('graphql-tools');
+const { makeExecutableSchema } = require('graphql-tools');
 
 const { merge } = require('lodash');
 
@@ -7,109 +7,7 @@ const Event = require('../models/event');
 const User = require('../models/user');
 const Booking = require('../models/booking');
 
-const { dateToString } = require('../helpers/date.js');
-
-// const {
-//   GraphQLObjectType,
-//   GraphQLID,
-//   GraphQLString,
-//   GraphQLList,
-//   GraphQLSchema,
-//   GraphQLNonNull,
-//   GraphQLFloat
-// } = require('graphql');
-
-/* Types */
-// const BookingType = new GraphQLObjectType({
-//   name: 'Booking',
-//   fields: () => ({
-//     _id: { type: GraphQLID },
-//     event: {
-//       type: EventType,
-//       resolve(parent, args) {
-//         return Event.findById(parent.event);
-//       }
-//     },
-//     user: {
-//       type: UserType,
-//       resolve(parent, args) {
-//         return User.findById(parent.user);
-//       }
-//     },
-//     createdAt: { type: GraphQLString },
-//     updatedAt: { type: GraphQLString }
-//   })
-// });
-
-// const UserType = new GraphQLObjectType({
-//   name: 'User',
-//   fields: () => ({
-//     _id: { type: GraphQLID },
-//     email: { type: GraphQLString },
-//     // password: { type: GraphQLString },
-//     createdEvents: {
-//       type: new GraphQLList(EventType),
-//       resolve(parent, args) {
-//         return Event.find({ creatorId: parent._id });
-//       }
-//     }
-//   })
-// });
-
-// const EventType = new GraphQLObjectType({
-//   name: 'Event',
-//   fields: () => ({
-//     _id: { type: GraphQLID },
-//     title: { type: new GraphQLNonNull(GraphQLString) },
-//     description: { type: new GraphQLNonNull(GraphQLString) },
-//     price: { type: GraphQLFloat },
-//     date: { type: GraphQLString },
-//     creator: {
-//       type: UserType,
-//       resolve(parent, args) {
-//         return User.findById(parent.creatorId);
-//       }
-//     }
-//   })
-// });
-
-/* Queries */
-// const RootQuery = new GraphQLObjectType({
-//   name: 'RootQuery',
-//   fields: () => ({
-//     users: {
-//       type: new GraphQLList(UserType),
-//       resolve: (parent, args) => {
-//         return User.find({});
-//       }
-//     },
-//     events: {
-//       type: new GraphQLList(EventType),
-//       async resolve(parent, args) {
-//         try {
-//           const events = await Event.find({});
-//           return events.map(event => transformEvent(event));
-//         } catch (err) {
-//           throw err;
-//         }
-//       }
-//     },
-//     bookings: {
-//       type: GraphQLList(BookingType),
-//       async resolve(parent, args) {
-//         try {
-//           const bookings = await Booking.find({});
-//           return bookings.map(booking => {
-//             return transformBooking(booking);
-//           });
-//         } catch (err) {
-//           throw err;
-//         }
-//       }
-//     }
-//   })
-// });
-
+// TODO: move and convert mutations into separate files
 /* Mutations */
 // const Mutation = new GraphQLObjectType({
 //   name: 'Mutation',
