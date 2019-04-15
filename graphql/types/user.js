@@ -1,7 +1,8 @@
 const Event = require('../../models/event');
 const User = require('../../models/user');
+const gql = require('graphql-tag');
 
-const UserType = `
+const UserType = gql`
   extend type Query {
     users: [User]
   }

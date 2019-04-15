@@ -1,3 +1,5 @@
+const gql = require('graphql-tag');
+
 const User = require('../../models/user');
 const Event = require('../../models/event');
 const Booking = require('../../models/booking');
@@ -16,7 +18,7 @@ const transformBooking = booking => {
   };
 };
 
-const BookingType = `
+const BookingType = gql`
   extend type Query {
     bookings: [Booking]
   }
