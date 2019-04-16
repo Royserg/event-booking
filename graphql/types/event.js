@@ -1,26 +1,6 @@
 const gql = require('graphql-tag');
 
-const User = require('../../models/user');
-const Event = require('../../models/event');
-
-const { dateToString } = require('../../helpers/date.js');
-
-/**
- * Function that return event object with
- * better formatted data
- */
-const transformEvent = event => {
-  return {
-    ...event._doc,
-    date: dateToString(event._doc.date)
-  };
-};
-
 const EventType = gql`
-  extend type Query {
-    events: [Event]
-  }
-
   type Event {
     _id: ID
     title: String
@@ -29,23 +9,19 @@ const EventType = gql`
     date: String
     creator: User
   }
+
+  extend type Query {
+    events: [Event]
+  }
+
+  extend type Mutation {
+    createEvent(
+      title: String!
+      description: String!
+      price: Float!
+      date: String! # creatorId: ID!
+    ): Event
+  }
 `;
 
-const eventResolver = {
-  Query: {
-    events: async () => {
-      try {
-        const events = await Event.find({});
-        return events.map(event => transformEvent(event));
-      } catch (err) {
-        throw err;
-      }
-    }
-  },
-
-  Event: {
-    creator: event => User.findById(event.creatorId)
-  }
-};
-
-module.exports = { EventType, eventResolver };
+module.exports = EventType;
