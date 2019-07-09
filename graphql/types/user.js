@@ -9,6 +9,7 @@ const UserType = gql`
 
   extend type Query {
     users: [User]
+    login(email: String!, password: String!): AuthData!
   }
 
   extend type Mutation {

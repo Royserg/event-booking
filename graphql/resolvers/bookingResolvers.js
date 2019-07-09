@@ -25,7 +25,11 @@ const transformEvent = event => {
 
 const bookingResolvers = {
   Query: {
-    bookings: async () => {
+    bookings: async (parent, args, req) => {
+      if (!req.isAuth) {
+        throw new Error('Unauthenticated!');
+      }
+
       try {
         const bookings = await Booking.find({});
         return bookings.map(booking => transformBooking(booking));
@@ -36,10 +40,14 @@ const bookingResolvers = {
   },
 
   Mutation: {
-    bookEvent: async (parent, args) => {
+    bookEvent: async (parent, args, req) => {
+      if (!req.isAuth) {
+        throw new Error('Unauthenticated!');
+      }
+
       try {
         const booking = new Booking({
-          user: '5cb4fd70a8546c3084a11df4',
+          user: req.userId,
           event: args.eventId
         });
 
@@ -49,7 +57,11 @@ const bookingResolvers = {
         throw err;
       }
     },
-    cancelBooking: async (parent, args) => {
+    cancelBooking: async (parent, args, req) => {
+      if (!req.isAuth) {
+        throw new Error('Unauthenticated!');
+      }
+
       try {
         // find whole booking object
         const booking = await Booking.findById(args.bookingId);

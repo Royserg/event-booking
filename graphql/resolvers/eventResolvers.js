@@ -29,13 +29,17 @@ const eventResolvers = {
   },
 
   Mutation: {
-    createEvent: async (parent, args) => {
+    createEvent: async (parent, args, req) => {
+      if (!req.isAuth) {
+        throw new Error('Unauthenticated!');
+      }
+
       const event = new Event({
         title: args.title,
         description: args.description,
         price: args.price,
         date: new Date(args.date),
-        creatorId: '5cb4fd70a8546c3084a11df4'
+        creatorId: req.userId
       });
       // holds info about the event
       let createdEvent;
@@ -44,7 +48,7 @@ const eventResolvers = {
         const result = await event.save();
         createdEvent = transformEvent(result);
         // hard coded user => add event to his array
-        const user = await User.findById('5cb4fd70a8546c3084a11df4');
+        const user = await User.findById(req.userId);
 
         if (!user) {
           throw new Error('User not found');

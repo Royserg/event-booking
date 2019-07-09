@@ -2,7 +2,7 @@ const { makeExecutableSchema } = require('graphql-tools');
 
 const { merge } = require('lodash');
 
-const { UserType, EventType, BookingType } = require('./types');
+const { UserType, EventType, BookingType, AuthDataType } = require('./types');
 const {
   userResolvers,
   eventResolvers,
@@ -23,7 +23,7 @@ const QueryType = `
 const resolvers = {};
 
 const schema = makeExecutableSchema({
-  typeDefs: [QueryType, UserType, BookingType, EventType],
+  typeDefs: [QueryType, UserType, BookingType, EventType, AuthDataType],
   resolvers: merge(resolvers, userResolvers, eventResolvers, bookingResolvers)
 });
 

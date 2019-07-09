@@ -1,6 +1,8 @@
 const express = require('express');
 const graphQlHttp = require('express-graphql');
 const mongoose = require('mongoose');
+// import custom middleware
+const isAuth = require('./middleware/is-auth');
 
 const schema = require('./graphql/schema');
 
@@ -9,6 +11,11 @@ const app = express();
 
 // Body Parser Middleware
 app.use(express.json());
+
+// Activate custom middleware, express will use it as a middleware.
+// This will run on every incoming request that's why middleware doesn't throw error
+// but instead it sets some metadata like isAuth (true/false)
+app.use(isAuth);
 
 // configure graphql endpoint
 app.use(
