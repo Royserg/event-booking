@@ -9,8 +9,21 @@ const schema = require('./graphql/schema');
 // initialize express
 const app = express();
 
-// Body Parser Middleware
+// Body Parser Middleware built in
 app.use(express.json());
+
+// Allow Cross Origin Requests Manually
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Browser automatically sends OPTIONS requests before every POST request to see if it is
+  // allowed to send such request
+  res.setHeader('Access-control-Allow-Methods', 'POST,GET,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // Activate custom middleware, express will use it as a middleware.
 // This will run on every incoming request that's why middleware doesn't throw error
