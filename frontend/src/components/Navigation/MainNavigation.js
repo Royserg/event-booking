@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import AuthContext from '../../context/auth-context';
+import AuthContext from 'context/auth-context';
 
 import './MainNavigation.css';
 
@@ -25,9 +25,14 @@ const mainNavigation = props => {
                   <NavLink to='/events'>Events</NavLink>
                 </li>
                 {context.token && (
-                  <li>
-                    <NavLink to='/bookings'>Bookings</NavLink>
-                  </li>
+                  <React.Fragment>
+                    <li>
+                      <NavLink to='/bookings'>Bookings</NavLink>
+                    </li>
+                    <li>
+                      <button onClick={context.logout}>Logout</button>
+                    </li>
+                  </React.Fragment>
                 )}
               </ul>
             </nav>
