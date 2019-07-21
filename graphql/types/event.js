@@ -19,7 +19,7 @@ const EventType = gql`
       title: String!
       description: String!
       price: Float!
-      date: String! # creatorId: ID!
+      date: String!
     ): Event
   }
 `;
