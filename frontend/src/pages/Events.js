@@ -1,5 +1,12 @@
 import React from 'react';
 
-const EventsPage = props => <h1>Events Page</h1>;
+import './Events.css';
+
+const EventsPage = props => (
+  <div className='events-control'>
+    <p>Share your own events</p>
+    <button className='btn'>Create Event</button>
+  </div>
+);
 
 export default EventsPage;

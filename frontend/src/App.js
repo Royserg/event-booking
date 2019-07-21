@@ -36,7 +36,6 @@ const App = () => {
           <MainNavigation />
           <main className='main-content'>
             <Switch>
-              {!token && <Redirect exact from='/' to='/auth' />}
               {/* When logged in and when trying to access root redirect to Events page */}
               {token && <Redirect exact from='/' to='/events' />}
               {token && <Redirect exact from='/auth' to='/events' />}
@@ -44,6 +43,9 @@ const App = () => {
               {!token && <Route path='/auth' component={AuthPage} />}
               <Route path='/events' component={EventsPage} />
               {token && <Route path='/bookings' component={BookingsPage} />}
+
+              {/*  User not authenticated redirected to /auth */}
+              {!token && <Redirect to='/auth' exact />}
             </Switch>
           </main>
         </AuthContext.Provider>
