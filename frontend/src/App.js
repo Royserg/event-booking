@@ -27,29 +27,26 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      {/* Fragment, because BrowserRouter allows only one child component */}
-      <React.Fragment>
-        {/* value sets initial value of the context, so here can be set functions */}
-        <AuthContext.Provider
-          value={{ token: token, userId: userId, login: login, logout: logout }}
-        >
-          <MainNavigation />
-          <main className='main-content'>
-            <Switch>
-              {/* When logged in and when trying to access root redirect to Events page */}
-              {token && <Redirect exact from='/' to='/events' />}
-              {token && <Redirect exact from='/auth' to='/events' />}
+      {/* value sets initial value of the context, so here can be set functions */}
+      <AuthContext.Provider
+        value={{ token: token, userId: userId, login: login, logout: logout }}
+      >
+        <MainNavigation />
+        <main className='main-content'>
+          <Switch>
+            {/* When logged in and when trying to access root redirect to Events page */}
+            {token && <Redirect exact from='/' to='/events' />}
+            {token && <Redirect exact from='/auth' to='/events' />}
 
-              {!token && <Route path='/auth' component={AuthPage} />}
-              <Route path='/events' component={EventsPage} />
-              {token && <Route path='/bookings' component={BookingsPage} />}
+            {!token && <Route path='/auth' component={AuthPage} />}
+            <Route path='/events' component={EventsPage} />
+            {token && <Route path='/bookings' component={BookingsPage} />}
 
-              {/*  User not authenticated redirected to /auth */}
-              {!token && <Redirect to='/auth' exact />}
-            </Switch>
-          </main>
-        </AuthContext.Provider>
-      </React.Fragment>
+            {/*  User not authenticated redirected to /auth */}
+            {!token && <Redirect to='/auth' exact />}
+          </Switch>
+        </main>
+      </AuthContext.Provider>
     </BrowserRouter>
   );
 };

@@ -11,7 +11,7 @@ const EventType = gql`
   }
 
   extend type Query {
-    events: [Event]
+    events: [Event!]!
   }
 
   extend type Mutation {
