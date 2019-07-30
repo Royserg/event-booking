@@ -4,12 +4,14 @@ import Modal from 'components/Modal/Modal';
 import Backdrop from 'components/Backdrop/Backdrop';
 import AuthContext from 'context/auth-context';
 import EventList from 'components/Events/EventList/EventList';
+import Spinner from 'components/Spinner/Spinner';
 
 import './Events.css';
 
 const EventsPage = props => {
   const [creating, setCreating] = useState(false);
   const [events, setEvents] = useState([]);
+  const [isLoading, setLoading] = useState(false);
   // References to form fields
   const titleEl = useRef(null);
   const priceEl = useRef(null);
@@ -82,10 +84,10 @@ const EventsPage = props => {
         return res.json();
       })
       .then(resData => {
-        // fetchEvents();
-        console.log(resData);
+        // Added event object
         const event = resData.data.createEvent;
-
+        console.log(event);
+        // Add to the state list of events
         setEvents(events.concat(event));
       })
       .catch(err => {
@@ -95,6 +97,9 @@ const EventsPage = props => {
 
   // Fetch all events from databse
   const fetchEvents = () => {
+    // Show spinner
+    setLoading(true);
+
     const requestBody = {
       query: `
         query {
@@ -128,9 +133,11 @@ const EventsPage = props => {
       .then(resData => {
         const events = resData.data.events;
         setEvents(events);
+        setLoading(false);
       })
       .catch(err => {
         console.log(err);
+        setLoading(false);
       });
   };
 
@@ -176,7 +183,7 @@ const EventsPage = props => {
         </div>
       )}
 
-      <EventList events={events} />
+      {isLoading ? <Spinner /> : <EventList events={events} />}
     </React.Fragment>
   );
 };
