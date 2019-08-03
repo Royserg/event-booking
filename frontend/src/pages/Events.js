@@ -12,6 +12,7 @@ const EventsPage = props => {
   const [creating, setCreating] = useState(false);
   const [events, setEvents] = useState([]);
   const [isLoading, setLoading] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   // References to form fields
   const titleEl = useRef(null);
   const priceEl = useRef(null);
@@ -26,6 +27,49 @@ const EventsPage = props => {
 
   const modalCancelHandler = () => {
     setCreating(false);
+    setSelectedEvent(null);
+  };
+
+  const bookEventHandler = () => {
+    if (!token) {
+      setSelectedEvent(null);
+      return;
+    }
+
+    const requestBody = {
+      query: `
+        mutation {
+          bookEvent(eventId: "${selectedEvent._id}") {
+            _id
+            createdAt
+            updatedAt
+          }
+        }
+      `
+    };
+
+    fetch('http://localhost:5000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed');
+        }
+        return res.json();
+      })
+      .then(resData => {
+        console.log(resData);
+        // Close modal
+        setSelectedEvent(null);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   const modalConfirmHandler = () => {
@@ -141,6 +185,10 @@ const EventsPage = props => {
       });
   };
 
+  const viewDetailsHandler = eventId => {
+    setSelectedEvent(events.find(event => event._id === eventId));
+  };
+
   return (
     <React.Fragment>
       {creating && (
@@ -148,6 +196,7 @@ const EventsPage = props => {
           <Backdrop closeModal={() => setCreating(false)} />
           <Modal
             title='Add Event'
+            confirmText='Confirm'
             canCancel
             canConfirm
             onCancel={modalCancelHandler}
@@ -174,6 +223,29 @@ const EventsPage = props => {
           </Modal>
         </React.Fragment>
       )}
+
+      {/* Modal for event's details - show modal when selectedEvent holds event */}
+      {selectedEvent && (
+        <React.Fragment>
+          <Backdrop closeModal={() => setSelectedEvent(null)} />
+          <Modal
+            title='Event Details'
+            confirmText={token ? 'Book' : 'Confirm'}
+            canCancel
+            canConfirm
+            onCancel={modalCancelHandler}
+            onConfirm={bookEventHandler}
+          >
+            <h1>{selectedEvent.title}</h1>
+            <h2>
+              ${selectedEvent.price} -{' '}
+              {new Date(selectedEvent.date).toLocaleDateString()}
+            </h2>
+            <p>{selectedEvent.description}</p>
+          </Modal>
+        </React.Fragment>
+      )}
+
       {token && (
         <div className='events-control'>
           <p>Share your own events</p>
@@ -183,7 +255,11 @@ const EventsPage = props => {
         </div>
       )}
 
-      {isLoading ? <Spinner /> : <EventList events={events} />}
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <EventList onViewDetails={viewDetailsHandler} events={events} />
+      )}
     </React.Fragment>
   );
 };
