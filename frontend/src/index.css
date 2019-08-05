@@ -38,3 +38,13 @@ body {
 .btn:active {
   background: rgb(9, 73, 158);
 }
+
+.btn--red {
+  background: #9b2b2b;
+  border: 1px solid #9c2424;
+}
+
+.btn--red:hover,
+.btn--red:active {
+  background: #681f1f;
+}

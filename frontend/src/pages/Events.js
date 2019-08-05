@@ -189,6 +189,45 @@ const EventsPage = props => {
     setSelectedEvent(events.find(event => event._id === eventId));
   };
 
+  const eventDeleteHandler = eventId => {
+    console.log('deleting eventtttt', eventId);
+
+    const requestBody = {
+      query: `
+        mutation {
+          deleteEvent(eventId: "${eventId}")
+        }`
+    };
+
+    fetch('http://localhost:5000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!');
+        }
+        return res.json();
+      })
+      .then(resData => {
+        const success = resData.data.deleteEvent;
+        console.log('success', success);
+
+        if (success) {
+          // Keep all events without deleted one
+          const updatedEvents = events.filter(event => event._id !== eventId);
+          setEvents(updatedEvents);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   return (
     <React.Fragment>
       {creating && (
@@ -258,7 +297,11 @@ const EventsPage = props => {
       {isLoading ? (
         <Spinner />
       ) : (
-        <EventList onViewDetails={viewDetailsHandler} events={events} />
+        <EventList
+          onViewDetails={viewDetailsHandler}
+          events={events}
+          onDelete={eventDeleteHandler}
+        />
       )}
     </React.Fragment>
   );

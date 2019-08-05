@@ -11,6 +11,7 @@ const EventList = props => {
         key={event._id}
         event={event}
         onViewDetails={props.onViewDetails}
+        onDelete={() => props.onDelete(event._id)}
       />
     );
   });

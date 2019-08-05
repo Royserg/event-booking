@@ -62,6 +62,15 @@ const eventResolvers = {
       } catch (err) {
         throw err;
       }
+    },
+    deleteEvent: async (parent, args, req) => {
+      if (!req.isAuth) {
+        throw new Error('Unauthenticated!');
+      }
+
+      const res = await Event.deleteOne({ _id: args.eventId });
+      // deletedCount should return 1, will give 0 if nothing was deleted (converted to false)
+      return res.deletedCount;
     }
   },
 

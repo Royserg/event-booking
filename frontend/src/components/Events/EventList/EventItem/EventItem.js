@@ -19,7 +19,12 @@ const EventItem = props => {
       </div>
       <div>
         {userId === creatorId ? (
-          <p>You are the owner of this event</p>
+          <React.Fragment>
+            <p>You are the owner</p>
+            <button className='btn btn--red' onClick={props.onDelete}>
+              Delete
+            </button>
+          </React.Fragment>
         ) : (
           <button
             className='btn'

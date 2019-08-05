@@ -21,6 +21,7 @@ const EventType = gql`
       price: Float!
       date: String!
     ): Event
+    deleteEvent(eventId: ID!): Boolean!
   }
 `;
 
