@@ -9,7 +9,7 @@ const EventItem = props => {
   const creatorId = props.event.creator._id;
 
   return (
-    <li className='event__list-item'>
+    <li className='event-list__item'>
       <div>
         <h1>{props.event.title}</h1>
         <h2>

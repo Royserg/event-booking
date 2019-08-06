@@ -1,0 +1,7 @@
+.booking-list {
+  margin: 0 auto;
+  list-style: none;
+  padding: 0;
+  width: 40rem;
+  max-width: 90%;
+}
