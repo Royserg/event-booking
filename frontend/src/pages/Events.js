@@ -94,12 +94,12 @@ const EventsPage = props => {
 
     const requestBody = {
       query: `
-        mutation {
+        mutation CreateEvent($title: String!, $description: String!, $price: Float!, $date: String!) {
           createEvent(
-            title: "${event.title}",
-            description: "${event.description}",
-            price: ${event.price},
-            date: "${event.date}") {
+            title: $title,
+            description: $description,
+            price: $price,
+            date: $date) {
               _id
               title
               description
@@ -110,7 +110,13 @@ const EventsPage = props => {
                 email
               }
           }
-        }`
+        }`,
+      variables: {
+        title: event.title,
+        description: event.description,
+        price: event.price,
+        date: event.date
+      }
     };
 
     fetch('http://localhost:5000/graphql', {
