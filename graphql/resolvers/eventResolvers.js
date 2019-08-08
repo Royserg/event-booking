@@ -1,13 +1,13 @@
-const gql = require('graphql-tag');
-
 const User = require('../../models/user');
 const Event = require('../../models/event');
 
 const { dateToString } = require('../../helpers/date.js');
 
+const { userLoader } = require('./dataLoaders');
+
 /**
  * Function that return event object with
- * better formatted data
+ * adjusted data and formatted date
  */
 const transformEvent = event => {
   return {
@@ -75,7 +75,8 @@ const eventResolvers = {
   },
 
   Event: {
-    creator: event => User.findById(event.creatorId)
+    // creator: event => User.findById(event.creatorId)
+    creator: event => userLoader.load(event.creatorId)
   }
 };
 

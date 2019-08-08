@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const Event = require('../../models/event');
 const User = require('../../models/user');
+
+const { eventLoader } = require('./dataLoaders');
 
 const userResolvers = {
   Query: {
@@ -55,7 +55,8 @@ const userResolvers = {
   },
 
   User: {
-    events: user => Event.find({ creatorId: user._id })
+    // events: user => Event.find({ creatorId: user._id })
+    events: user => eventLoader.loadMany(user._doc.createdEvents)
   }
 };
 
